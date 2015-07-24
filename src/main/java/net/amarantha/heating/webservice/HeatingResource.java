@@ -67,7 +67,6 @@ public class HeatingResource {
     @Path("override/off")
     public static Response overrideOff() {
         service.setOverride(OFF);
-        service.switchHeating(OFF);
         return ok("Command Processed");
     }
 
