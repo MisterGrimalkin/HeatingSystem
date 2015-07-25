@@ -3,6 +3,7 @@ package net.amarantha.heating.service;
 import net.amarantha.heating.entity.Status;
 import net.amarantha.heating.entity.TimerEvent;
 import net.amarantha.heating.hardware.HeatingController;
+import net.amarantha.heating.hardware.ThermoTriggerListener;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -93,7 +94,7 @@ public class HeatingService {
                     );
             status.addEvent(event);
             return event.getId();
-        } catch (ParseException e) {}
+        } catch (ParseException ignored) {}
         return null;
     }
 

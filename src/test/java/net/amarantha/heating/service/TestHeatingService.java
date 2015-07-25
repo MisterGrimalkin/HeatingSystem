@@ -9,10 +9,12 @@ import static org.junit.Assert.assertEquals;
 
 public class TestHeatingService {
 
+    private HeatingService service;
+
     @Test
     public void testSimpleOnOff() {
 
-        given_system();
+        given_the_heating_system();
 
         when_switch_heating(ON);
         then_heating_is(ON);
@@ -24,7 +26,7 @@ public class TestHeatingService {
     @Test
     public void testThermostat() {
 
-        given_system();
+        given_the_heating_system();
 
         when_thermo_is(OFF);
         then_heating_is(OFF);
@@ -53,7 +55,7 @@ public class TestHeatingService {
     @Test
     public void testOverride() {
 
-        given_system();
+        given_the_heating_system();
 
         when_switch_heating(ON);
         then_heating_is(ON);
@@ -96,7 +98,7 @@ public class TestHeatingService {
     @Test
     public void testTimer() {
 
-        given_system();
+        given_the_heating_system();
 
         when_add_timer_event    (ON,    ON_1);
         when_add_timer_event    (OFF,   OFF_1);
@@ -141,14 +143,14 @@ public class TestHeatingService {
     @Test
     public void testStatePersistence() {
 
-        given_system();
+        given_the_heating_system();
 
         when_timer_is(OFF);
         when_thermo_is(ON);
 
         service.saveStateToConfig();
 
-        given_system();
+        given_the_heating_system();
 
         // TODO: Fix JSON decoding
 
@@ -157,10 +159,9 @@ public class TestHeatingService {
 
     // Given
 
-    private HeatingService service;
     private MockHeatingController controller;
 
-    private void given_system() {
+    private void given_the_heating_system() {
         service = HeatingService.withController(controller = new MockHeatingController());
     }
 

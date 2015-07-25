@@ -24,7 +24,7 @@ public class HeatingResource {
 
     public static void startWebService(HeatingService service) {
         HeatingResource.service = service;
-        final ResourceConfig rc = new ResourceConfig().packages("net.amarantha.heating.webservice");
+        ResourceConfig rc = new ResourceConfig().packages("net.amarantha.heating.webservice");
         GrizzlyHttpServerFactory.createHttpServer(URI.create(URL), rc);
     }
 

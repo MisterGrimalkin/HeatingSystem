@@ -1,6 +1,7 @@
 package net.amarantha.heating.hardware.impl;
 
 import com.pi4j.io.gpio.*;
+import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import net.amarantha.heating.entity.Status;
 import net.amarantha.heating.hardware.HeatingController;
@@ -25,9 +26,9 @@ public class RaspPiHeatingController implements HeatingController {
     @Override
     public void init() {
         thermoTriggerPin.addListener((GpioPinListenerDigital) event -> {
-            System.out.println("Thermostat triggered " + event.getState().isLow() );
-            if ( listener!=null ) {
-                listener.onTriggerChanged( event.getState().isLow() ? ON : OFF );
+            System.out.println("Thermostat triggered " + event.getState().isLow());
+            if (listener != null) {
+                listener.onTriggerChanged(event.getState().isLow() ? ON : OFF);
             }
         });
     }
