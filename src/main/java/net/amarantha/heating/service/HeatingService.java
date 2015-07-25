@@ -3,9 +3,9 @@ package net.amarantha.heating.service;
 import net.amarantha.heating.entity.Status;
 import net.amarantha.heating.entity.TimerEvent;
 import net.amarantha.heating.hardware.HeatingController;
-import net.amarantha.heating.hardware.ThermoTriggerListener;
 
-import java.io.*;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;

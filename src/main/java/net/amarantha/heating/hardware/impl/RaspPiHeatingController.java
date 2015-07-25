@@ -1,7 +1,6 @@
 package net.amarantha.heating.hardware.impl;
 
 import com.pi4j.io.gpio.*;
-import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import net.amarantha.heating.entity.Status;
 import net.amarantha.heating.hardware.HeatingController;
