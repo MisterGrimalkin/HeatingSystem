@@ -1,117 +1,117 @@
 package net.amarantha.heating.webservice;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import net.amarantha.heating.service.HeatingService;
-import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
-import org.glassfish.jersey.server.ResourceConfig;
+import net.amarantha.heating.utility.PropertyManager;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
-import java.net.URI;
 
 import static net.amarantha.heating.entity.Status.OFF;
 import static net.amarantha.heating.entity.Status.ON;
 
+@Singleton
 @Path("heating")
 public class HeatingResource {
 
-    private static final String URL = "http://192.168.0.70:8001/";
+    @Inject
+    protected HeatingService service;
 
-    private static HeatingService service;
+    @Inject
+    protected PropertyManager props;
 
-    public static void startWebService(HeatingService service) {
-        HeatingResource.service = service;
-        ResourceConfig rc = new ResourceConfig().packages("net.amarantha.heating.webservice");
-        GrizzlyHttpServerFactory.createHttpServer(URI.create(URL), rc);
-    }
 
     @GET
     @Path("status")
-    public static Response getStatus() {
-        // TODO: JSON
+    public Response getStatus() {
         return ok("Not Implemented");
     }
 
     @GET
     @Path("timer-events")
-    public static Response getTimerEvents() {
-        // TODO: JSON
+    public Response getTimerEvents() {
         return ok("Not Implemented");
     }
 
     @POST
     @Path("on")
-    public static Response switchHeatingOn() {
+    public Response switchHeatingOn() {
         service.switchHeating(ON);
-        return ok("Command Processed");
+        return ok();
     }
 
     @POST
     @Path("off")
-    public static Response switchHeatingOff() {
+    public Response switchHeatingOff() {
         service.switchHeating(OFF);
-        return ok("Command Processed");
+        return ok();
     }
 
     @POST
     @Path("override/on")
-    public static Response overrideOn() {
+    public Response overrideOn() {
         service.setOverride(ON);
-        return ok("Command Processed");
+        return ok();
     }
 
     @POST
     @Path("override/off")
-    public static Response overrideOff() {
+    public Response overrideOff() {
         service.setOverride(OFF);
-        return ok("Command Processed");
+        return ok();
     }
 
     @POST
     @Path("thermo/on")
-    public static Response thermoOn() {
+    public Response thermoOn() {
         service.setThermo(ON);
-        return ok("Command Processed");
+        return ok();
     }
 
     @POST
     @Path("thermo/off")
-    public static Response thermoOff() {
+    public Response thermoOff() {
         service.setThermo(OFF);
-        return ok("Command Processed");
+        return ok();
     }
 
     @POST
     @Path("timer/on")
-    public static Response timerOn() {
+    public Response timerOn() {
         service.setTimer(ON);
-        return ok("Command Processed");
+        return ok();
     }
 
     @POST
     @Path("timer/off")
-    public static Response timerOff() {
+    public Response timerOff() {
         service.setTimer(OFF);
-        return ok("Command Processed");
+        return ok();
     }
 
     @POST
     @Path("timer/remove")
-    public static Response removeTimerEvent(@QueryParam("id") String id) {
+    public Response removeTimerEvent(@QueryParam("id") String id) {
         service.removeTimerEvent(id);
-        return ok("Command Processed");
+        return ok();
     }
 
     @POST
     @Path("timer/add")
-    public static Response addTimerEvent(@QueryParam("type") String type, @QueryParam("time") String time) {
-        String id = service.addTimerEvent("ON".equals(type)?ON:OFF,time);
+    public Response addTimerEvent(@QueryParam("type") String type, @QueryParam("time") String time) {
+        String id = service.addTimerEvent("ON".equals(type) ? ON : OFF, time);
         return ok(id);
     }
 
-    private static Response ok(String content) {
+    private Response ok() {
+        return ok("Request Processed");
+    }
+
+    private Response ok(String content) {
         return Response.ok()
                 .header("Access-Control-Allow-Origin", "*")
                 .entity(content)

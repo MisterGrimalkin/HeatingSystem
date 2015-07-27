@@ -1,48 +1,45 @@
 package net.amarantha.heating.service;
 
+import com.google.inject.Singleton;
 import net.amarantha.heating.entity.Status;
 import net.amarantha.heating.entity.TimerEvent;
 import net.amarantha.heating.hardware.HeatingController;
+import net.amarantha.heating.utility.Now;
+import net.amarantha.heating.utility.PropertyManager;
 
+import javax.inject.Inject;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static java.util.Collections.sort;
 import static net.amarantha.heating.entity.Status.OFF;
 import static net.amarantha.heating.entity.Status.ON;
+import static net.amarantha.heating.utility.Now.*;
 import static net.sf.json.JSONObject.fromObject;
 import static net.sf.json.JSONObject.toBean;
 
+@Singleton
 public class HeatingService {
 
-    private HeatingController controller;
+    @Inject protected HeatingController controller;
+
+    @Inject protected Now now;
+    @Inject protected PropertyManager props;
+
     private HeatingStatus status;
-
-    private HeatingService(HeatingController controller) {
-        this.controller = controller;
-        status = new HeatingStatus();
-        updateStatus();
-    }
-
-
-    // Factory
-
-    public static HeatingService withController(HeatingController controller) {
-        HeatingService service = new HeatingService(controller);
-        controller.setThermoTriggerListener(service::setThermoTriggered);
-        return service;
-    }
 
 
     // Public API
 
-    public HeatingService startService() {
+    public HeatingService startHeatingService() {
+        status = new HeatingStatus();
+        overrideTimeout = minutesAsMilliseconds(props.getLong("overrideMinutes", 60L));
         controller.init();
+        controller.setThermoTriggerListener(this::setThermoTriggered);
         heating(OFF);
         new Timer().schedule(new TimerTask() { public void run() {
             updateStatus();
@@ -90,7 +87,7 @@ public class HeatingService {
                     new TimerEvent(
                             String.valueOf(UUID.randomUUID()),
                             type,
-                            sdf.parse(time)
+                            TIME_FORMAT.parse(time)
                     );
             status.addEvent(event);
             return event.getId();
@@ -159,7 +156,7 @@ public class HeatingService {
         Status result = OFF;
         List<TimerEvent> events = status.getTimerEvents();
         if ( !events.isEmpty() ) {
-            Date time = now.nowTimeOnly();
+            Date time = now.time();
             sort(events);
             for (TimerEvent event : events) {
                 if (event.getTime().before(time)) {
@@ -175,7 +172,7 @@ public class HeatingService {
     private TimerEvent getNextTimerEvent() {
         List<TimerEvent> events = status.getTimerEvents();
         if ( !events.isEmpty() ) {
-            Date time = now.nowTimeOnly();
+            Date time = now.time();
             sort(events);
             for (TimerEvent event : events) {
                 if (event.getTime().after(time)) {
@@ -190,8 +187,11 @@ public class HeatingService {
 
     // Override
 
+    private long overrideTimeout = hoursAsMilliseconds(1);
+    private Date overrideActivated;
+
     private boolean overrideValid() {
-        return overrideActivated!=null&&(elapsedTime()<OVERRIDE_EXPIRY);
+        return overrideActivated!=null&&(elapsedTime()<overrideTimeout);
     }
 
     private long elapsedTime() {
@@ -199,13 +199,8 @@ public class HeatingService {
     }
 
     private long remainingMinutes() {
-        return (long)Math.round((OVERRIDE_EXPIRY-elapsedTime())/(60000));
+        return (long)Math.round((overrideTimeout-elapsedTime())/(60000));
     }
-
-    private Date overrideActivated;
-    private final long OVERRIDE_EXPIRY = 60 * 60 * 1000;
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("hh:mm");
-    Now now = new Now();
 
 
     // Status Strings
@@ -221,7 +216,7 @@ public class HeatingService {
     private void timerActiveStatusString() {
         TimerEvent next = getNextTimerEvent();
         if ( next!=null ) {
-            status.setHeatingStatusString(next.getType().name() + " at " + sdf.format(next.getTime()));
+            status.setHeatingStatusString(next.getType().name() + " at " + TIME_FORMAT.format(next.getTime()));
         } else {
             status.setHeatingStatusString(status.getCurrentState().name() + " until Further Notice");
         }
@@ -230,11 +225,11 @@ public class HeatingService {
 
     // Persist State
 
-    private static final String PROPS_FILE = "heatingservice.json";
+    private static final String JSON_FILE = "heatingservice.json";
 
     public HeatingService loadStateFromConfig() {
         try {
-            String jsonString = new String(Files.readAllBytes(Paths.get(PROPS_FILE)));
+            String jsonString = new String(Files.readAllBytes(Paths.get(JSON_FILE)));
             status = (HeatingStatus)toBean(fromObject(jsonString), HeatingStatus.class);
         } catch (IOException e) {
             e.printStackTrace();
@@ -244,7 +239,7 @@ public class HeatingService {
 
     public HeatingService saveStateToConfig() {
         try {
-            FileWriter writer = new FileWriter(PROPS_FILE);
+            FileWriter writer = new FileWriter(JSON_FILE);
             writer.write(fromObject(status).toString());
             writer.close();
         } catch (IOException e) {

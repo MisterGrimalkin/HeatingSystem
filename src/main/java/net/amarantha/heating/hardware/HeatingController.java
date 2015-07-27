@@ -8,6 +8,12 @@ public interface HeatingController {
 
     void switchHeating(Status status);
 
+    Status getHeatingStatus();
+
     void setThermoTriggerListener(ThermoTriggerListener listener);
+
+    Status getThermoTriggeredStatus();
+
+    void triggerThermo(Status status);
 
 }

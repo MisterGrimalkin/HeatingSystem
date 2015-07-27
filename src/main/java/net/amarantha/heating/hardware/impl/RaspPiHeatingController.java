@@ -1,20 +1,23 @@
 package net.amarantha.heating.hardware.impl;
 
+import com.google.inject.Singleton;
 import com.pi4j.io.gpio.*;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import net.amarantha.heating.entity.Status;
-import net.amarantha.heating.hardware.HeatingController;
 import net.amarantha.heating.hardware.ThermoTriggerListener;
+import org.slf4j.Logger;
 
 import static net.amarantha.heating.entity.Status.OFF;
 import static net.amarantha.heating.entity.Status.ON;
+import static org.slf4j.LoggerFactory.getLogger;
 
-public class RaspPiHeatingController implements HeatingController {
+@Singleton
+public class RaspPiHeatingController extends AbstractHeatingController {
+
+    private Logger logger = getLogger(RaspPiHeatingController.class);
 
     private GpioPinDigitalInput thermoTriggerPin;
     private GpioPinDigitalOutput heatingControlPin;
-
-    private ThermoTriggerListener listener;
 
     public RaspPiHeatingController() {
         GpioController gpio = GpioFactory.getInstance();
@@ -25,28 +28,35 @@ public class RaspPiHeatingController implements HeatingController {
     @Override
     public void init() {
         thermoTriggerPin.addListener((GpioPinListenerDigital) event -> {
-            System.out.println("Thermostat triggered " + event.getState().isLow());
-            if (listener != null) {
-                listener.onTriggerChanged(event.getState().isLow() ? ON : OFF);
-            }
+            logger.info("Thermostat triggered " + event.getState().isLow());
+            triggerThermo(event.getState().isLow() ? ON : OFF);
         });
     }
 
     @Override
     public void switchHeating(Status status) {
-        if ( heatingControlPin.isHigh() && OFF.equals(status) ) {
-           System.out.println("Switch Heading OFF");
-            heatingControlPin.low();
-        } else if ( heatingControlPin.isLow() && ON.equals(status) ) {
-           System.out.println("Switch Heading ON");
+        if ( ON.equals(status) && heatingControlPin.isLow() ) {
+            logger.info("Switch Heading ON");
             heatingControlPin.high();
+        } else if ( OFF.equals(status) && heatingControlPin.isHigh() ) {
+            logger.info("Switch Heading OFF");
+            heatingControlPin.low();
         }
     }
 
     @Override
     public void setThermoTriggerListener(ThermoTriggerListener listener) {
-        this.listener = listener;
+        super.setThermoTriggerListener(listener);
         listener.onTriggerChanged(thermoTriggerPin.getState().isLow() ? ON : OFF);
     }
 
+    @Override
+    public Status getHeatingStatus() {
+        return heatingControlPin.isHigh() ? ON : OFF;
+    }
+
+    @Override
+    public Status getThermoTriggeredStatus() {
+        return thermoTriggerPin.getState().isLow() ? ON : OFF;
+    }
 }

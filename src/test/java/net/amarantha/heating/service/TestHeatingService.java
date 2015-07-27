@@ -1,87 +1,95 @@
 package net.amarantha.heating.service;
 
+import com.google.inject.Inject;
+import com.googlecode.guicebehave.Modules;
+import com.googlecode.guicebehave.Story;
+import com.googlecode.guicebehave.StoryRunner;
+import net.amarantha.heating.TestModule;
 import net.amarantha.heating.entity.Status;
-import org.junit.Test;
+import net.amarantha.heating.hardware.HeatingController;
+import net.amarantha.heating.utility.Now;
+import org.junit.runner.RunWith;
 
 import static net.amarantha.heating.entity.Status.OFF;
 import static net.amarantha.heating.entity.Status.ON;
 import static org.junit.Assert.assertEquals;
 
+@RunWith(StoryRunner.class) @Modules(TestModule.class)
 public class TestHeatingService {
 
-    private HeatingService service;
+    @Inject private HeatingService service;
 
-    @Test
+    @Story
     public void testSimpleOnOff() {
 
         given_the_heating_system();
 
-        when_switch_heating(ON);
-        then_heating_is(ON);
-        when_switch_heating(OFF);
-        then_heating_is(OFF);
+        when_switch_heating_$1(ON);
+        then_heating_is_$1(ON);
+        when_switch_heating_$1(OFF);
+        then_heating_is_$1(OFF);
 
     }
 
-    @Test
+    @Story
     public void testThermostat() {
 
         given_the_heating_system();
 
-        when_thermo_is(OFF);
-        then_heating_is(OFF);
+        when_thermo_is_$1(OFF);
+        then_heating_is_$1(OFF);
 
-        when_thermo_is_triggered(ON);         then_heating_is(OFF);
-        when_thermo_is_triggered(OFF);        then_heating_is(OFF);
+        when_thermo_is_triggered_$1(ON);         then_heating_is_$1(OFF);
+        when_thermo_is_triggered_$1(OFF);        then_heating_is_$1(OFF);
 
-        when_thermo_is(ON);
-        then_heating_is(OFF);
+        when_thermo_is_$1(ON);
+        then_heating_is_$1(OFF);
 
-        when_thermo_is_triggered(ON);         then_heating_is(ON);
-        when_thermo_is_triggered(OFF);        then_heating_is(OFF);
-        when_thermo_is_triggered(ON);         then_heating_is(ON);
+        when_thermo_is_triggered_$1(ON);         then_heating_is_$1(ON);
+        when_thermo_is_triggered_$1(OFF);        then_heating_is_$1(OFF);
+        when_thermo_is_triggered_$1(ON);         then_heating_is_$1(ON);
 
-        when_switch_heating(OFF);
-        then_heating_is(ON);
+        when_switch_heating_$1(OFF);
+        then_heating_is_$1(ON);
 
-        when_thermo_is(OFF);
-        then_heating_is(ON);
+        when_thermo_is_$1(OFF);
+        then_heating_is_$1(ON);
 
-        when_switch_heating(OFF);
-        then_heating_is(OFF);
+        when_switch_heating_$1(OFF);
+        then_heating_is_$1(OFF);
 
     }
 
-    @Test
+    @Story
     public void testOverride() {
 
         given_the_heating_system();
 
-        when_switch_heating(ON);
-        then_heating_is(ON);
-        then_override_is(OFF);
+        when_switch_heating_$1(ON);
+        then_heating_is_$1(ON);
+        then_override_is_$1(OFF);
 
-        when_thermo_is(ON);
+        when_thermo_is_$1(ON);
 
-        when_thermo_is_triggered(ON);
-        then_heating_is(ON);
-        when_thermo_is_triggered(OFF);
-        then_heating_is(OFF);
+        when_thermo_is_triggered_$1(ON);
+        then_heating_is_$1(ON);
+        when_thermo_is_triggered_$1(OFF);
+        then_heating_is_$1(OFF);
 
-        when_switch_heating(ON);
-        then_heating_is(OFF);
+        when_switch_heating_$1(ON);
+        then_heating_is_$1(OFF);
 
-        when_override_is(ON);
-        then_heating_is(ON);
-        then_override_is(ON);
+        when_override_is_$1(ON);
+        then_heating_is_$1(ON);
+        then_override_is_$1(ON);
 
-        when_minutes_pass(45);
-        then_heating_is(ON);
-        then_override_is(ON);
+        when_$1_minutes_pass(45);
+        then_heating_is_$1(ON);
+        then_override_is_$1(ON);
 
-        when_minutes_pass(45);
-        then_heating_is(OFF);
-        then_override_is(OFF);
+        when_$1_minutes_pass(45);
+        then_heating_is_$1(OFF);
+        then_override_is_$1(OFF);
 
     }
 
@@ -95,58 +103,58 @@ public class TestHeatingService {
     private static final String OFF_2 = "23:00";
     private static final String TEST_TIME_5 = "23:30";
 
-    @Test
+    @Story
     public void testTimer() {
 
         given_the_heating_system();
 
-        when_add_timer_event    (ON,    ON_1);
-        when_add_timer_event    (OFF,   OFF_1);
+        when_add_timer_event_$1_at_$2(ON, ON_1);
+        when_add_timer_event_$1_at_$2(OFF, OFF_1);
         String timerEvent3 =
-        when_add_timer_event    (ON,    ON_2);
-        when_add_timer_event    (OFF,   OFF_2);
+        when_add_timer_event_$1_at_$2(ON, ON_2);
+        when_add_timer_event_$1_at_$2(OFF, OFF_2);
 
-        when_timer_is(OFF);
+        when_timer_is_$1(OFF);
 
-        when_switch_heating(OFF);
-        when_time_is(TEST_TIME_1);        then_heating_is(OFF);
-        when_time_is(TEST_TIME_2);        then_heating_is(OFF);
-        when_time_is(TEST_TIME_3);        then_heating_is(OFF);
-        when_time_is(TEST_TIME_4);        then_heating_is(OFF);
-        when_time_is(TEST_TIME_5);        then_heating_is(OFF);
+        when_switch_heating_$1(OFF);
+        when_time_is_$1(TEST_TIME_1);        then_heating_is_$1(OFF);
+        when_time_is_$1(TEST_TIME_2);        then_heating_is_$1(OFF);
+        when_time_is_$1(TEST_TIME_3);        then_heating_is_$1(OFF);
+        when_time_is_$1(TEST_TIME_4);        then_heating_is_$1(OFF);
+        when_time_is_$1(TEST_TIME_5);        then_heating_is_$1(OFF);
 
-        when_switch_heating(ON);
-        when_time_is(TEST_TIME_1);        then_heating_is(ON);
-        when_time_is(TEST_TIME_2);        then_heating_is(ON);
-        when_time_is(TEST_TIME_3);        then_heating_is(ON);
-        when_time_is(TEST_TIME_4);        then_heating_is(ON);
-        when_time_is(TEST_TIME_5);        then_heating_is(ON);
+        when_switch_heating_$1(ON);
+        when_time_is_$1(TEST_TIME_1);        then_heating_is_$1(ON);
+        when_time_is_$1(TEST_TIME_2);        then_heating_is_$1(ON);
+        when_time_is_$1(TEST_TIME_3);        then_heating_is_$1(ON);
+        when_time_is_$1(TEST_TIME_4);        then_heating_is_$1(ON);
+        when_time_is_$1(TEST_TIME_5);        then_heating_is_$1(ON);
 
-        when_timer_is(ON);
+        when_timer_is_$1(ON);
 
-        when_time_is(TEST_TIME_1);        then_heating_is(OFF);
-        when_time_is(TEST_TIME_2);        then_heating_is(ON);
-        when_time_is(TEST_TIME_3);        then_heating_is(OFF);
-        when_time_is(TEST_TIME_4);        then_heating_is(ON);
-        when_time_is(TEST_TIME_5);        then_heating_is(OFF);
+        when_time_is_$1(TEST_TIME_1);        then_heating_is_$1(OFF);
+        when_time_is_$1(TEST_TIME_2);        then_heating_is_$1(ON);
+        when_time_is_$1(TEST_TIME_3);        then_heating_is_$1(OFF);
+        when_time_is_$1(TEST_TIME_4);        then_heating_is_$1(ON);
+        when_time_is_$1(TEST_TIME_5);        then_heating_is_$1(OFF);
 
-        when_remove_timer_event(timerEvent3);
+        when_remove_timer_event_$1(timerEvent3);
 
-        when_time_is(TEST_TIME_1);        then_heating_is(OFF);
-        when_time_is(TEST_TIME_2);        then_heating_is(ON);
-        when_time_is(TEST_TIME_3);        then_heating_is(OFF);
-        when_time_is(TEST_TIME_4);        then_heating_is(OFF);
-        when_time_is(TEST_TIME_5);        then_heating_is(OFF);
+        when_time_is_$1(TEST_TIME_1);        then_heating_is_$1(OFF);
+        when_time_is_$1(TEST_TIME_2);        then_heating_is_$1(ON);
+        when_time_is_$1(TEST_TIME_3);        then_heating_is_$1(OFF);
+        when_time_is_$1(TEST_TIME_4);        then_heating_is_$1(OFF);
+        when_time_is_$1(TEST_TIME_5);        then_heating_is_$1(OFF);
 
     }
 
-    @Test
+    @Story
     public void testStatePersistence() {
 
         given_the_heating_system();
 
-        when_timer_is(OFF);
-        when_thermo_is(ON);
+        when_timer_is_$1(OFF);
+        when_thermo_is_$1(ON);
 
         service.saveStateToConfig();
 
@@ -157,75 +165,78 @@ public class TestHeatingService {
     }
 
 
+    @Inject private HeatingController controller;
+
+    @Inject private Now now;
+
+
     // Given
 
-    private MockHeatingController controller;
-
-    private void given_the_heating_system() {
-        service = HeatingService.withController(controller = new MockHeatingController());
+    protected void given_the_heating_system() {
+        service.startHeatingService();
     }
 
 
     // When
 
-    private void when_minutes_pass(int minutes) {
-        service.now.pushNow(minutes);
+    protected void when_$1_minutes_pass(int minutes) {
+        now.pushNowMinutes(minutes);
         service.updateStatus();
     }
 
-    private void when_time_is(String time) {
-        service.now.setNowTime(time);
+    protected void when_time_is_$1(String time) {
+        now.setTime(time);
         service.updateStatus();
     }
 
-    private void when_thermo_is_triggered(Status status) {
+    protected void when_thermo_is_triggered_$1(Status status) {
         controller.triggerThermo(status);
     }
 
-    private void when_switch_heating(Status status) {
+    protected void when_switch_heating_$1(Status status) {
         service.switchHeating(status);
     }
 
-    private void when_override_is(Status status) {
+    protected void when_override_is_$1(Status status) {
         service.setOverride(status);
     }
 
-    private void when_thermo_is(Status status) {
+    protected void when_thermo_is_$1(Status status) {
         service.setThermo(status);
     }
 
-    private void when_timer_is(Status status) {
+    protected void when_timer_is_$1(Status status) {
         service.setTimer(status);
     }
 
-    private String when_add_timer_event(Status type, String time) {
+    protected String when_add_timer_event_$1_at_$2(Status type, String time) {
         return service.addTimerEvent(type, time);
     }
 
-    private void when_remove_timer_event(String id) {
+    protected void when_remove_timer_event_$1(String id) {
         service.removeTimerEvent(id);
     }
 
 
     // Then
 
-    private void then_heating_is(Status status) {
-        assertEquals(status, controller.isOn());
+    protected void then_heating_is_$1(Status status) {
+        assertEquals(status, controller.getHeatingStatus());
     }
 
-    private void then_override_is(Status status) {
+    protected void then_override_is_$1(Status status) {
         assertEquals(status, service.getStatus().getOverrideStatus());
     }
 
-    private void then_thermo_is(Status status) {
+    protected void then_thermo_is_$1(Status status) {
         assertEquals(status, service.getStatus().getThermoStatus());
     }
 
-    private void then_timer_is(Status status) {
+    protected void then_timer_is_$1(Status status) {
         assertEquals(status, service.getStatus().getTimerStatus());
     }
 
-    private void then_total_events(int count) {
+    protected void then_total_events_$1(int count) {
         assertEquals(count, service.getStatus().getTimerEvents().size());
     }
 
