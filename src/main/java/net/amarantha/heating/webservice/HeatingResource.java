@@ -1,12 +1,12 @@
 package net.amarantha.heating.webservice;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import net.amarantha.heating.service.HeatingService;
 import net.amarantha.heating.utility.PropertyManager;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -21,19 +21,22 @@ import static net.amarantha.heating.entity.Status.ON;
 @Singleton
 public class HeatingResource {
 
+    public HeatingResource() {}
+
     protected static HeatingService service;
+    protected static PropertyManager props;
 
     @Inject
-    protected PropertyManager props;
-
-    @Inject
-    public HeatingResource(HeatingService service) {
+    public HeatingResource(HeatingService service, PropertyManager props) {
         HeatingResource.service = service;
+        HeatingResource.props = props;
     }
 
     public void startWebService() {
         ResourceConfig rc = new ResourceConfig().packages("net.amarantha.heating.webservice");
-        GrizzlyHttpServerFactory.createHttpServer(URI.create(props.getString("ip","127.0.0.1")), rc);
+        GrizzlyHttpServerFactory.createHttpServer(
+                URI.create("http://" + props.getString("ip","127.0.0.1") + ":" + props.getString("port","8001")), rc
+        );
     }
 
     @GET

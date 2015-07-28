@@ -9,7 +9,7 @@ public class PropertyManager {
 
     public static final String PROPS_FILENAME = "application.properties";
 
-    private Properties props;
+    protected Properties props;
 
     public PropertyManager() {
         props = new Properties();

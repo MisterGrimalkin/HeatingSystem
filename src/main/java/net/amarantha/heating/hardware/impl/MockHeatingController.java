@@ -19,6 +19,7 @@ public class MockHeatingController extends AbstractHeatingController {
 
     @Override
     public void switchHeating(Status status) {
+//        System.out.println("Heating " + status.name());
         this.heatingStatus = status;
     }
 

@@ -13,4 +13,5 @@ public class TestModule extends AbstractStoryModule {
         bind(HeatingController.class).to(MockHeatingController.class);
         bind(PropertyManager.class).to(MockPropertyManager.class);
     }
+
 }
