@@ -1,5 +1,6 @@
 package net.amarantha.heating.hardware.impl;
 
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.pi4j.io.gpio.*;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
@@ -19,8 +20,8 @@ public class RaspPiHeatingController extends AbstractHeatingController {
     private GpioPinDigitalInput thermoTriggerPin;
     private GpioPinDigitalOutput heatingControlPin;
 
-    public RaspPiHeatingController() {
-        GpioController gpio = GpioFactory.getInstance();
+    @Inject
+    public RaspPiHeatingController(GpioController gpio) {
         heatingControlPin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_01, PinState.LOW);
         thermoTriggerPin = gpio.provisionDigitalInputPin(RaspiPin.GPIO_00, PinPullResistance.PULL_UP);
     }
